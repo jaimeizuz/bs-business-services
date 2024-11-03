@@ -1,0 +1,406 @@
+openapi: 3.0.1
+info:
+  title: "Document Data Extractor"
+  description: "This API extracts metadata from unstructured documents using artificial intelligence (AI).\n\nThe process is asynchronous and requires that the document from which metadata is to be extracted is first uploaded separately to a repository, as the document itself is not provided in the API request.\n\nThe API can be used to:\n- Initiate a metadata extraction.\n- Verify the status of a file extraction.\n- Retrieve the metadata from a file extraction\n- Send feedback for extracted metadata."
+  contact:
+    name: "API Global Governance"
+    email: "apiglobalgovernance@gruposantander.com"
+  license:
+    name: "Apache"
+    url: "https://www.apache.org/licenses/LICENSE-2.0"
+  version: 1.1.0
+servers:
+  - url: "/document_data_extractor"
+tags:
+  - name: Metadata extraction
+    description: "Operations related to extracting metadata"
+  - name: Extraction status
+    description: "Operations related to retrieving extraction statuses"
+  - name: Metadata retrieval
+    description: "Operations related to retrieving extracted metadata"
+  - name: Metadata feedback
+    description: "Operations related to sending feedback for extracted metadata"
+security:
+  - Authorization: []
+paths:
+  "/file_extractions":
+    post:
+      tags:
+        - Metadata extraction
+      operationId: metadata_extraction_initiation
+      summary: "Initiates a metadata extraction."
+      description: "Initiates a metadata extraction from a document.\n\nThe following must be provided in the request body:\n- Process ID that defines the type of extraction to be performed\n- Repository location where the document was previously uploaded\n\nThe response includes the file extraction ID."
+      parameters:
+        - $ref: "#/components/parameters/header-X-Santander-Client-Id"
+      requestBody:
+        $ref: "#/components/requestBodies/createProcessInput"
+      responses:
+        "202":
+          $ref: "#/components/responses/response202FileExtractions"
+        "400":
+          $ref: "#/components/responses/error400"
+        "401":
+          $ref: "#/components/responses/error401"
+        "403":
+          $ref: "#/components/responses/error403"
+        "404":
+          $ref: "#/components/responses/error404"
+        "415":
+          $ref: "#/components/responses/error415"
+        "500":
+          $ref: "#/components/responses/error500"
+        "503":
+          $ref: "#/components/responses/error503"
+        "504":
+          $ref: "#/components/responses/error504"
+  "/file_extractions/{file_extraction_id}/status":
+    get:
+      tags:
+        - Extraction status
+      operationId: metadata_extraction_status
+      summary: "Verifies the status of a file extraction."
+      description: "Verifies the status of a specific file extraction initiated by the 'POST /file_extractions' operation.\n\nTo send this request, you must provide a file extraction ID in the request path.\n\nThe response includes the extraction status and, when the extraction is complete, the Uniform Resource Identifier (URI) for the extracted metadata. When the extraction status is 'Completed', use the 'GET /file_extractions/{file_extraction_id}' operation to retrieve the extracted metadata."
+      parameters:
+        - $ref: "#/components/parameters/header-X-Santander-Client-Id"
+        - $ref: "#/components/parameters/file_extraction_id"
+      responses:
+        "200":
+          $ref: "#/components/responses/response200FileExtractionsStatus"
+        "204":
+          $ref: "#/components/responses/response204FileExtractionsStatus"
+        "400":
+          $ref: "#/components/responses/error400"
+        "401":
+          $ref: "#/components/responses/error401"
+        "403":
+          $ref: "#/components/responses/error403"
+        "404":
+          $ref: "#/components/responses/error404"
+        "500":
+          $ref: "#/components/responses/error500"
+        "503":
+          $ref: "#/components/responses/error503"
+        "504":
+          $ref: "#/components/responses/error504"
+  "/file_extractions/{file_extraction_id}":
+    get:
+      tags:
+        - Metadata retrieval
+      operationId: metadata_extraction_retrieval
+      summary: "Retrieves the metadata from a file extraction."
+      description: "Retrieves the metadata from a specific file extraction.\n\nTo send this request, you must provide a file extraction ID in the request path.\n\nThe metadata can be retrieved only after the extraction is complete and the 'GET /file_extractions/{file_extraction_id}/status' operation returns the 'Completed' extraction status."
+      parameters:
+        - $ref: "#/components/parameters/header-X-Santander-Client-Id"
+        - $ref: "#/components/parameters/file_extraction_id"
+      responses:
+        "200":
+          $ref: "#/components/responses/response200FileExtractionsData"
+        "400":
+          $ref: "#/components/responses/error400"
+        "401":
+          $ref: "#/components/responses/error401"
+        "403":
+          $ref: "#/components/responses/error403"
+        "404":
+          $ref: "#/components/responses/error404"
+        "500":
+          $ref: "#/components/responses/error500"
+        "503":
+          $ref: "#/components/responses/error503"
+        "504":
+          $ref: "#/components/responses/error504"
+  "/file_extractions/feedback":
+    post:
+      tags:
+        - Metadata feedback
+      operationId: metadata_feedback_sending
+      summary: "Sends feedback for extracted metadata."
+      description: "Sends feedback for previously extracted metadata in the form of validated metadata.\n\nThe file extraction ID for the previously extracted metadata and the validated metadata must be provided in the request body.\n\nThe response includes a notice about the feedback delivery result."
+      requestBody:
+        $ref: "#/components/requestBodies/createFeedbackProcessInput"
+      parameters:
+        - $ref: "#/components/parameters/header-X-Santander-Client-Id"
+      responses:
+        "200":
+          $ref: "#/components/responses/response200SendValidatedMetadata"
+        "400":
+          $ref: "#/components/responses/error400"
+        "401":
+          $ref: "#/components/responses/error401"
+        "403":
+          $ref: "#/components/responses/error403"
+        "404":
+          $ref: "#/components/responses/error404"
+        "415":
+          $ref: "#/components/responses/error415"
+        "500":
+          $ref: "#/components/responses/error500"
+        "503":
+          $ref: "#/components/responses/error503"
+        "504":
+          $ref: "#/components/responses/error504"
+components:
+  parameters:
+    header-X-Santander-Client-Id:
+      name: x-santander-client-id
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "Client ID header"
+      example: "a1b30a84-7bf3-442e-84a0-e935d8163b5a"
+    file_extraction_id:
+      name: file_extraction_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: "File extraction ID to be used in the query"
+      example: "mytopic00"
+  responses:
+    response202FileExtractions:
+      description: "Accepted"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperGetResponseFileExtractions"
+    response200FileExtractionsStatus:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperGetResponseFileExtractionsStatus"
+    response200FileExtractionsData:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperGetResponseFileExtractionsData"
+    response204FileExtractionsStatus:
+      description: "No content"
+    response200SendValidatedMetadata:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperGetResponseSendValidatedMetadata"
+    error400:
+      description: "Bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error401:
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error403:
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error404:
+      description: "Not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error415:
+      description: "Unsupported media type"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error500:
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error503:
+      description: "Service unavailable"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    error504:
+      description: "Gateway timeout"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+  schemas:
+    WrapperGetResponseFileExtractions:
+      type: object
+      description: "Response to a request to initiate a metadata extraction"
+      properties:
+        fileExtractionId:
+          $ref: "#/components/schemas/WrapperGetMetadata"
+    WrapperGetResponseFileExtractionsStatus:
+      type: object
+      description: "Response to a request to verify the status of a file extraction"
+      properties:
+        statusCode:
+          $ref: "#/components/schemas/StatusInfo"
+        href:
+          $ref: "#/components/schemas/LinkReference"
+    WrapperGetResponseFileExtractionsData:
+      x-bizObjRef: File
+      type: object
+      description: "Data structure containing information about a file.\n\nThis data structure is the response to a request to retrieve the metadata from a file extraction."
+      properties:
+        fileExtractedData:
+          type: string
+          description: "Data structure containing metadata for content extracted from the file.\n\nThe metadata is provided in JSON format agreed between the app sending the request and the local services called from the API. The JSON content can be a maximum of 8,000 char long."
+          example: "{/tmp/tmpaskqzbpb/testpdf.pdf: {passport: [{name: Name,date_of_birth: Birthdate,expiration_date: ExpirationDate}]}}"
+    WrapperGetMetadata:
+      x-bizObjRef: Request
+      type: object
+      description: "Data structure containing information about a generic request"
+      properties:
+        requestId:
+          type: string
+          description: "Unique request ID. The value is the file extraction ID for the extraction request."
+          example: "12921"
+    WrapperGetResponseSendValidatedMetadata:
+      x-bizObjRef: Message
+      type: object
+      description: "Data structure containing information about a notice message displaying relevant information on the screen; for example, a legal disclaimer or an informative message to help understand the current operation.\n\nThis data structure is the response to a request to send feedback for extracted metadata."
+      properties:
+        description:
+          $ref: "#/components/schemas/ItemValue"
+    Request:
+      type: object
+      description: "Data structure containing information about a generic request"
+      properties:
+        requestId:
+          type: string
+          description: "Unique request ID. The value is the file extraction ID for the previous extraction request."
+          example: "12921"
+    WrapperFileExtractedData:
+      x-bizObjRef: File
+      type: object
+      description: "Data structure containing information about a file. The information is the validated metadata provided as feedback."
+      properties:
+        fileExtractedData:
+          type: string
+          description: "Data structure containing metadata for content extracted from the file.\n\nThe metadata is provided in JSON format agreed between the app sending the request and the local services called from the API. The JSON content can be a maximum of 8,000 char long."
+          example: "{/tmp/tmpaskqzbpb/testpdf.pdf: {passport: [{name: Name,date_of_birth: Birthdate,expiration_date: ExpirationDate}]}}"
+    Process:
+      type: object
+      description: "Data structure containing information about a process"
+      properties:
+        processId:
+          type: string
+          description: "Unique process ID"
+          example: "1232435324543"
+    StatusInfo:
+      type: object
+      description: "Data structure containing information about an item's status"
+      properties:
+        statusCode:
+          type: string
+          description: "Status code"
+          example: "CANC"
+    LinkReference:
+      type: object
+      description: "Data structure containing link information.\n\nThis data structure is empty unless the metadata extraction is complete and the value of 'statusCode.statusCode' is 'Completed'."
+      properties:
+        href:
+          type: string
+          description: "Reference link that can be used to navigate to the specified URI"
+          example: "https://www.hostname.com/document_data_extractor/file_extractions/{file_extraction_id}"
+    File:
+      type: object
+      description: "Data structure containing information about a file"
+      properties:
+        uri:
+          type: string
+          description: "Uniform Resource Identifier (URI) of the asset"
+          example: "https://www.hostname.com/document_data_extractor/file_extractions/{file_name}"
+    WrapperCreateProcessInput:
+      type: object
+      description: "Data structure containing the required information to initiate a metadata extraction"
+      required:
+        - processID
+        - uri
+      properties:
+        processID:
+          $ref: "#/components/schemas/Process"
+        uri:
+          $ref: "#/components/schemas/File"
+    WrapperCreateFeedbackProcessInput:
+      type: object
+      description: "Data structure containing the required information to send feedback for extracted metadata"
+      required:
+        - requestId
+        - fileExtractedData
+      properties:
+        requestId:
+          $ref: "#/components/schemas/Request"
+        fileExtractedData:
+          $ref: "#/components/schemas/WrapperFileExtractedData"
+    ItemValue:
+      type: object
+      description: "Data structure containing information about a field value of a specific type"
+      properties:
+       value:
+          type: string
+          description: "Field value"
+          example: "Feedback saved successfully."
+    Errors:
+      type: object
+      description: "Data structure containing the details for errors"
+      properties:
+        errors:
+          type: array
+          description: "Array of errors"
+          items:
+            $ref: "#/components/schemas/Error"
+    Error:
+      type: object
+      description: "Data structure containing the error details"
+      properties:
+        code:
+          type: string
+          description: "Unique alphanumeric human readable error code"
+          example: "ERR001"
+        message:
+          type: string
+          description: "Brief summary of the reported issue"
+          example: "Invalid action"
+        level:
+          type: string
+          description: "Level of the reported issue"
+          enum:
+            - info
+            - warning
+            - error
+          example: "error"
+        description:
+          type: string
+          description: "Detailed description of the reported issue"
+          example: "Information about the returned error, used to resolve it"
+  requestBodies:
+    createProcessInput:
+      description: "Data structure containing the request details for initiating a metadata extraction"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperCreateProcessInput"
+    createFeedbackProcessInput:
+      description: "Data structure containing the request details for sending feedback for extracted metadata"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperCreateFeedbackProcessInput"
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

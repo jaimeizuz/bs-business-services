@@ -1,0 +1,829 @@
+openapi: 3.0.1
+info:
+  x-openapi-id: glstat-oas3-api-entities_1_2_0
+  title: GBO Entities
+  x-ibm-name: gbo-entities
+  version: 1.2.0
+  description: |
+    It allows the possibility of standardizing the way entities are created and
+    generated for the different regions and global entities of GBO, allowing the
+    creation of entities in a single way for the different users with a new way
+    that allows this action to be carried out.
+  termsOfService: https://internal-apimarket.scib.gs.corp/scib/internal/terms
+  contact:
+    url: https://confluence.alm.europe.cloudcenter.corp/display/CIBMARKBO/cib_markbo+Home
+    name: Dario Vega Sánchez
+    email: dario.vega@gruposantander.com
+  license:
+    name: Santander CIB API License
+    url: https://internal-apimarket.scib.gs.corp/scib/internal/terms
+  x-santander-catalogation:
+    bian-landscape-version: 8
+    bian-business-area: Business Support
+    bian-business-domain: IT Management
+    bian-service-domain: Internal Network Operation
+  x-entity-catalogation:
+    entity: SCIB Global
+    business-domain: MARKETS
+    business-area: Markets Back-office
+    orbis-application-name: GBO Global
+    orbis-application-id: 6599
+externalDocs:
+  description: Find more information here.
+  url: https://confluence.alm.europe.cloudcenter.corp/display/CIBMARKBO/cib_markbo+Home
+servers:
+  - url: https://intranet-client-api.scib.gs.corp:443/scib/internal/v1/gbo_entities
+tags:
+  - name: Entities
+  - name: Liveness / Readiness
+paths:
+  /entities:
+    parameters:
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/X-Santander-Client-Id'
+      - $ref: '#/components/parameters/X-Santander-Device'
+      - $ref: '#/components/parameters/Accept-Language'
+      - $ref: '#/components/parameters/If-None-Match'
+      - $ref: '#/components/parameters/If-Match'
+      - $ref: '#/components/parameters/X-B3-TraceId'
+      - $ref: '#/components/parameters/X-B3-ParentSpanId'
+      - $ref: '#/components/parameters/X-B3-SpanId'
+      - $ref: '#/components/parameters/X-B3-Sampled'
+    get:
+      summary: Retrieves operational entities.
+      description: Retrieves operational entities filtering by GLCS (Global Limit Code System).
+      operationId: retrieveEntities
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/Entity-Glcs'
+      responses:
+        '200':
+          $ref: '#/components/responses/RetrieveEntityInformation'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+    post:
+      summary: Creates an operational entity.
+      description: Creates an operational entity.
+      operationId: createEntities
+      tags:
+        - Entities
+      requestBody:
+        $ref: '#/components/requestBodies/CreateEntity'
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateEntity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+  /entities/{entity_id}:
+    parameters:
+      - $ref: '#/components/parameters/Entity-Id'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/X-Santander-Client-Id'
+      - $ref: '#/components/parameters/X-Santander-Device'
+      - $ref: '#/components/parameters/Accept-Language'
+      - $ref: '#/components/parameters/If-None-Match'
+      - $ref: '#/components/parameters/If-Match'
+      - $ref: '#/components/parameters/X-B3-TraceId'
+      - $ref: '#/components/parameters/X-B3-ParentSpanId'
+      - $ref: '#/components/parameters/X-B3-SpanId'
+      - $ref: '#/components/parameters/X-B3-Sampled'
+    patch:
+      summary: Updates an operational entity.
+      description: Updates an operational entity.
+      operationId: updateEntities
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/X-Santander-Client-Id'
+        - $ref: '#/components/parameters/X-Santander-Device'
+        - $ref: '#/components/parameters/Accept-Language'
+        - $ref: '#/components/parameters/If-None-Match'
+        - $ref: '#/components/parameters/If-Match'
+        - $ref: '#/components/parameters/X-B3-TraceId'
+        - $ref: '#/components/parameters/X-B3-ParentSpanId'
+        - $ref: '#/components/parameters/X-B3-SpanId'
+        - $ref: '#/components/parameters/X-B3-Sampled'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateEntity'
+      responses:
+        '200':
+          $ref: '#/components/responses/UpdateEntity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+  /health:
+    parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/X-Santander-Client-Id'
+      - $ref: '#/components/parameters/X-Santander-Device'
+      - $ref: '#/components/parameters/Accept-Language'
+      - $ref: '#/components/parameters/If-None-Match'
+      - $ref: '#/components/parameters/If-Match'
+      - $ref: '#/components/parameters/X-B3-TraceId'
+      - $ref: '#/components/parameters/X-B3-ParentSpanId'
+      - $ref: '#/components/parameters/X-B3-SpanId'
+      - $ref: '#/components/parameters/X-B3-Sampled'
+    get:
+      summary: Retrieve the liveness and the readiness of the service.
+      description: Retrieve the liveness and the readiness of the service.
+      tags:
+        - Liveness / Readiness
+      operationId: retrieveHealth
+      responses:
+        '200':
+          $ref: '#/components/responses/RetrieveHealth'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+components:
+  schemas:
+    Entity:
+      description: Data structure containing information about the Entity registration.
+      type: object
+      required:
+        - id
+        - glcs
+        - name
+        - type
+        - industry
+        - residenceCountry
+        - bookingUnit
+        - status
+        - sourceApplication
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityId'
+        glcs:
+          $ref: '#/components/schemas/Glcs'
+        name:
+          type: string
+          description: Full name of the Entity.
+          example: Beijing Branch
+        type:
+          $ref: '#/components/schemas/EntityType'
+        industry:
+          $ref: '#/components/schemas/Industry'
+        residenceCountry:
+          $ref: '#/components/schemas/Country'
+        bookingUnit:
+          $ref: '#/components/schemas/BookingUnit'
+        status:
+          $ref: '#/components/schemas/EntityStatus'
+        localAliases:
+          type: array
+          description: List of local aliases for a given operational entity.
+          writeOnly: true
+          items:
+            $ref: '#/components/schemas/LocalAlias'
+        tradingAccountIdentifiers:
+          type: array
+          description: List of Trading Account Identifiers.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TradingAccountIdentifier'
+        sourceApplication:
+          $ref: '#/components/schemas/SourceApplication'
+    TradingAccountIdentifier:
+      type: object
+      description: Data structure containing Trading Account Identifier details.
+      required:
+        - type
+        - id
+        - creationDate
+      properties:
+        type:
+          type: string
+          description: |
+            Type of Trading Account Identifier.
+            - FDID: Firm Designated Identifier.
+            - LTID: Large Trader Identifier.
+          enum:
+            - FDID
+            - LTID
+          example: FDID
+        id:
+          type: string
+          description: Unique Identifier of the Trading Account assigned by SEC and provided by clearing house.
+          example: PP9U3MXFJZX
+        creationDate:
+          type: string
+          format: date
+          example: '2022-09-13'
+          description: |
+            Trading Account Identifier creation date.
+            The value uses the complete data format defined in ISO 8601:\
+            'YYYY-MM-DDThh:mm:ss.sssTZD'\
+            Where:
+            - YYYY: 4-digit year
+            - MM: 2-digit month (for example, 01 = January)
+            - DD: 2-digit day of the month (01 through 31).
+    BookingUnit:
+      type: string
+      description: Santander Bank Entity (Booking Unit) where the Entity is registered. This is used to route the creation.
+      example: Santander Global Branch
+    EntityStatus:
+      type: string
+      description: Entity Status.
+      example: ACTIVE
+      enum:
+        - ACTIVE
+        - INACTIVE
+    EntityUpdate:
+      description: Data structure containing information about the Entity update.
+      type: object
+      required:
+        - sourceApplication
+        - bookingUnit
+      properties:
+        status:
+          $ref: '#/components/schemas/EntityStatus'
+        industry:
+          $ref: '#/components/schemas/Industry'
+        tradingAccountIdentifiers:
+          type: array
+          description: List of Trading Account Identifiers.
+          items:
+            $ref: '#/components/schemas/TradingAccountIdentifier'
+        sourceApplication:
+          $ref: '#/components/schemas/SourceApplication'
+        bookingUnit:
+          $ref: '#/components/schemas/BookingUnit'
+    SourceApplication:
+      type: object
+      description: Data structure containing source application details.
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+          description: Source system code.
+          example: KYCCM
+        name:
+          type: string
+          description: Source system name.
+          readOnly: true
+          example: KYC Case Manager
+    EntityResponse:
+      description: Data structure containing information about the Entity registration response from SIGOM.
+      type: object
+      required:
+        - glcs
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityId'
+        glcs:
+          $ref: '#/components/schemas/Glcs'
+    Glcs:
+      type: string
+      description: GLCS (Global Limit Code System). Internal and global unique reference of the Legal Entity.
+      readOnly: true
+      example: UAT1
+    EntityId:
+      type: number
+      description: Unique identifier of the operational entity.
+      example: 123.28
+      readOnly: true
+    EntityType:
+      description: Data structure containing entity type.
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+          description: |
+            Entity type Code.
+            - COM: Company.
+            - GOV: Government.
+            - IND: Individual.
+            - SUP: Supranational.
+          enum:
+            - COM
+            - GOV
+            - IND
+            - SUP
+          example: COM
+        name:
+          type: string
+          description: Entity type name.
+          readOnly: true
+          example: Company
+    Industry:
+      description: Data structure containing entity industry.
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+          description: |
+            Industry code.
+            - BANSB: Banks & Saving Banks.
+            - BROKE: Brokers.
+            - CLIEN: Clients.
+            - CORPN: Companies.
+            - CORPC: Corporate Classified.
+            - EQUIS: Fund Managers, Operating Unit.
+            - FUNMA: Funds, Operating Unit.
+            - HDFND: Hedge Funds.
+            - INSUR: Insurance.
+            - ORGMA: Organized Markets.
+            - CARDH: Other Financial Entities.
+            - PROJE: Project Finance.
+            - PUBIN: Public Institutions.
+            - SOVER: Sovereign.
+            - SUPRA: Supranational Entities.
+            - SECUR: Securitizations (Titulizaciones).
+          enum:
+            - BANSB
+            - BROKE
+            - CLIEN
+            - CORPN
+            - CORPC
+            - EQUIS
+            - FUNMA
+            - HDFND
+            - INSUR
+            - ORGMA
+            - CARDH
+            - PROJE
+            - PUBIN
+            - SOVER
+            - SUPRA
+            - SECUR
+          example: CORPN
+        name:
+          type: string
+          description: Industry name.
+          readOnly: true
+          example: Clients
+    Country:
+      description: Data structure containing country information.
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+          description: |
+            Country ISO code (alfa-2).
+            The value is based on the ISO 3166
+            (https://www.iso.org/obp/ui/#search/code/).
+          maxLength: 2
+          example: ES
+        name:
+          type: string
+          description: |
+            Country name.\
+            The value is based on the ISO 3166
+            (https://www.iso.org/obp/ui/#search/code/).
+          readOnly: true
+          example: SPAIN
+    LocalAlias:
+      type: object
+      description: Data structure containing a local alias.
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          description: Alias type (ALTAIR, BDP_RETAIL, BDP_WHOLESALE, etc.).
+          example: FENERGO
+        value:
+          type: string
+          description: Alias value.
+          example: '163681'
+    Errors:
+      description: Data structure containing the details for errors.
+      type: object
+      minProperties: 1
+      properties:
+        errors:
+          type: array
+          description: List of errors.
+          items:
+            $ref: '#/components/schemas/Error'
+    Error:
+      description: Data structure containing the error details.
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Unique alphanumeric human readable error code.
+          example: badRequest
+        message:
+          type: string
+          description: Brief summary of the reported issue.
+          example: Message
+        level:
+          type: string
+          description: Level of the reported issue.
+          example: ERROR
+          enum:
+            - ERROR
+            - FATAL
+            - INFO
+            - WARNING
+        description:
+          type: string
+          description: Detailed description of the reported issue.
+          example: Description
+    Component:
+      description: Data structure containing the status components.
+      type: object
+      required:
+        - name
+        - type
+        - status
+      properties:
+        name:
+          type: string
+          description: Name of the component.
+          example: Oracle
+        type:
+          type: string
+          description: Description of the component.
+          example: Database
+        status:
+          $ref: '#/components/schemas/Status'
+    Status:
+      type: string
+      description: |-
+        Status of the component.
+
+        - UP: Status indicating that the component or subsystem is functioning as expected.
+        - DOWN: Status indicating that the component or subsystem has suffered an unexpected failure.
+        - OUT_OF_SERVICE: Status indicating that the component or subsystem has been taken out of service and should not be used.
+        - UNKNOWN: Status indicating that the component or subsystem is in an unknown state.
+      example: UP
+      enum:
+        - UP
+        - DOWN
+        - UNKNOWN
+        - OUT_OF_SERVICE
+    Health:
+      description: Data structure containing information about the health response.
+      type: object
+      required:
+        - status
+        - components
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        components:
+          type: array
+          description: List of components.
+          items:
+            $ref: '#/components/schemas/Component'
+  requestBodies:
+    CreateEntity:
+      description: Request body for new entity operation.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Entity'
+    UpdateEntity:
+      description: Body.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntityUpdate'
+  responses:
+    RetrieveHealth:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Health'
+    CreateEntity:
+      description: The entity was created successfully.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntityResponse'
+    UpdateEntity:
+      description: The entity was updated successfully.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntityUpdate'
+    RetrieveEntityInformation:
+      description: Successful operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Entity'
+    TooManyRequests:
+      description: Too Many Requests.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: notFound
+                message: Not Found
+                level: ERROR
+                description: Not Found
+    NotAcceptable:
+      description: Not Acceptable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: notFound
+                message: Not Found
+                level: ERROR
+                description: Not Found
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: badRequest
+                message: Bad Request
+                level: ERROR
+                description: Bad Request
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: forbidden
+                message: Forbidden
+                level: ERROR
+                description: Forbidden
+    GatewayTimeout:
+      description: Gateway timeout
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: gatewayTimeout
+                message: Gateway timeout
+                level: ERROR
+                description: Gateway timeout
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: internalServerError
+                message: Internal Server Error
+                level: ERROR
+                description: Internal Server Error
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: notFound
+                message: Not Found
+                level: ERROR
+                description: Not Found
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: serviceUnavailable
+                message: Service Unavailable
+                level: ERROR
+                description: Service Unavailable
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example:
+            errors:
+              - code: unauthorized
+                message: Unauthorized
+                level: ERROR
+                description: Unauthorized
+    NoContent:
+      description: No Content.
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: Request header contains the credentials to authenticate a user agent with a server, usually after the server has responded with a 401 Unauthorized status.
+      required: true
+      schema:
+        type: string
+    X-Santander-Client-Id:
+      name: X-Santander-Client-Id
+      in: header
+      description: This is the value of the client identifier issued to the client during the application registration process.
+      required: true
+      schema:
+        type: string
+    X-Santander-Device:
+      name: X-Santander-Device
+      in: header
+      required: false
+      description: Device information allowed by the operation for data query. Allows to apply base experience to optimize the response according to the device that requests it.
+      schema:
+        type: string
+    Accept:
+      name: Accept
+      in: header
+      required: false
+      description: Allows consumer to define the type of content needed, in this case only applies 'application/json' or 'application/octet-stream'.
+      schema:
+        type: string
+    Accept-Language:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The consumer defines the list of languages in order of preference. The server responds with the "Content-Language" field in the header with the response language.
+      schema:
+        type: string
+    If-None-Match:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Gets the GET resources in cache as long as the data of the Etag sent in this header has not changed.
+      schema:
+        type: string
+    If-Match:
+      name: If-Match
+      in: header
+      required: false
+      description: Used for resource modification requests, this field allows you to make changes only if another client has not made any other changes during execution, that is, if the Etag sent is the same.
+      schema:
+        type: string
+    X-B3-TraceId:
+      name: X-B3-TraceId
+      in: header
+      required: false
+      description: The X-B3-TraceId header is encoded as 32 or 16 lower-hex characters.
+      schema:
+        type: string
+    X-B3-ParentSpanId:
+      name: X-B3-ParentSpanId
+      in: header
+      required: false
+      description: The X-B3-ParentSpanId header may be present on a child span and must be absent on the root span. It is encoded as 16 lower-hex characters.
+      schema:
+        type: string
+    X-B3-SpanId:
+      name: X-B3-SpanId
+      in: header
+      required: false
+      description: The X-B3-SpanId header is encoded as 16 lower-hex characters.
+      schema:
+        type: string
+    X-B3-Sampled:
+      name: X-B3-Sampled
+      in: header
+      required: false
+      description: 'An accept sampling decision is encoded as X-B3-Sampled: 1 and a deny as X-B3-Sampled: 0. Absent means defer the decision to the receiver of this header.'
+      schema:
+        type: string
+    Entity-Glcs:
+      name: glcs
+      in: query
+      required: true
+      description: GLCS (Global Limit Code System). Internal and global unique reference of the Legal Entity.
+      schema:
+        type: string
+        maxLength: 6
+        example: ABC123
+    Entity-Id:
+      name: entity_id
+      in: path
+      required: true
+      description: Unique identifier of the operational entity.
+      schema:
+        type: string
+        example: '123.28'
+  securitySchemes:
+    OAuth2-Jwt-Profile:
+      description: 'You can find more information about OAuth2 JWT Profile in our confluence: https://confluence.alm.europe.cloudcenter.corp/x/YJDBBg'
+      flows:
+        implicit:
+          authorizationUrl: https://$(auth-security-url)
+          scopes:
+            gbo-entities.create: It is a role that compiles scope of creation on the method assigned.
+            gbo-entities.delete: It is a role that collects deletion scope on the assigned method.
+            gbo-entities.read: It is a role that compiles reading scope on the assigned method.
+            gbo-entities.update: It is a role that collects scope for modification of the assigned method.
+      type: oauth2
+      x-ibm-oauth-provider: scib-oauth-provider
+    X-IBM-Client-Id:
+      description: This is the value of the client identifier issued to the client during the application registration process.
+      in: header
+      name: X-IBM-Client-Id
+      type: apiKey
+security:
+  - OAuth2-Jwt-Profile:
+      - gbo-entities.read
+      - gbo-entities.create
+      - gbo-entities.delete
+      - gbo-entities.update
+    X-IBM-Client-Id: []
+x-ibm-configuration:
+  cors:
+    enabled: true
+  phase: realized
+  type: rest
+  oauth-servers:
+    OAuth2-Jwt-Profile:
+      implicit:
+        tokenUrls: []
+        authorizationUrls:
+          - https://$(auth-security-url)
+        refreshUrls: []
+x-ibm-endpoints:
+  - url: https://intranet-client-api.scib.gs.corp:443/scib/internal/v1/gbo_entities
