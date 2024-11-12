@@ -1,0 +1,794 @@
+openapi: 3.0.3
+info:
+  title: "Corporate Trade Parties"
+  version: 1.0.0
+  description: "This API manages the data related to corporate trade parties in Santander branches that handle international business. Corporate trade parties represent legal entities that have a particular profile within the bank as, for example, counterparties or customers.\n\nA corporate trade party has a global limit code system (GLCS) party ID that is created in a separate application and registered in the international branches system. When this API uses the GLCS party ID to create a party in a particular international branch, organization identifiers are created for the party and stored in a local database.\n\nThe API can be used to:\n- Create a corporate trade party.\n- Retrieve a corporate trade party's details.\n- Update a corporate trade party's details."
+  contact:
+    email: "scibapigovernance@gruposantander.com"
+    url: "https://gluon.corp/community/docs/latest/"
+  license:
+    name: "Apache"
+    url: "https://www.apache.org/licenses/LICENSE-2.0"
+servers:
+  - url: /v1/corporate_trade_parties
+tags:
+  - name: Parties
+    description: "Operations related to corporate trade parties"
+paths:
+  "/parties":
+    parameters:
+      - $ref: "#/components/parameters/X-Santander-Client-Id"
+      - $ref: "#/components/parameters/Accept-Language"
+    post:
+      summary: "Creates a corporate trade party."
+      description: "Creates a corporate trade party for an international branch.\n\nDetails of the corporate trade party to be created, including the global limit code system (GLCS) party ID, must be provided in the request body.\n\nThe response includes the organization identifiers for the created corporate trade party."
+      tags:
+        - Parties
+      operationId: createParty
+      requestBody:
+        $ref: "#/components/requestBodies/WrapperCreatePartyRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/WrapperCreatePartyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/parties/{party_id}":
+    parameters:
+      - $ref: "#/components/parameters/X-Santander-Client-Id"
+      - $ref: "#/components/parameters/Accept-Language"
+      - $ref: "#/components/parameters/Party-Id"
+    get:
+      summary: "Retrieves a corporate trade party's details."
+      description: "Retrieves a specific corporate trade party's details.\n\nTo send this request, you must provide a global limit code system (GLCS) party ID in the request path."
+      tags:
+        - Parties
+      operationId: retrievePartyDetail
+      responses:
+        "200":
+          $ref: "#/components/responses/WrapperRetrievePartyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+    patch:
+      summary: "Updates a corporate trade party's details."
+      description: "Updates a specific corporate trade party's details.\n\nTo send this request, you must provide a global limit code system (GLCS) party ID in the request path.\n\nUpdated details for the corporate trade party must be provided in the request body."
+      tags:
+        - Parties
+      operationId: updatePartyDetails
+      requestBody:
+        $ref: "#/components/requestBodies/WrapperUpdatePartyRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/WrapperUpdatePartyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+components:
+  schemas:
+    Errors:
+      type: object
+      description: "Data structure containing the details for errors"
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          description: "Array of errors"
+          items:
+            $ref: "#/components/schemas/Error"
+    Error:
+      type: object
+      description: "Data structure containing the error details"
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: "Unique alphanumeric human readable error code"
+          example: "badRequest"
+        message:
+          type: string
+          description: "Brief summary of the reported issue"
+          example: "Message"
+        level:
+          type: string
+          description: "Level of the reported issue"
+          enum:
+            - ERROR
+            - FATAL
+            - INFO
+            - WARNING
+          example: "ERROR"
+        description:
+          type: string
+          description: "Detailed description of the reported issue"
+          example: "Information about the returned error, used to resolve it"
+    WrapperUpdatePartyRequest:
+      type: object
+      description: "Data structure containing information about a party. A party is a person or an organization that is involved in an activity."
+      x-bizObjRef: Party
+      minProperties: 1
+      properties:
+        organization:
+          type: object
+          description: "Data structure containing information about a legal entity"
+          minProperties: 1
+          properties:
+            organizationId:
+              type: string
+              description: "Unique legal entity ID"
+              example: "J123456789"
+            typeCode:
+              type: string
+              description: "Code for the organization type"
+              example: "CORPORATE"
+            documents:
+              type: array
+              description: "Array of documents"
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/IdentificationDocument"
+              example:
+                - documentTypeCode: "LEI"
+                  documentNumber: "6713233"
+                - documentTypeCode: "BDP"
+                  documentNumber: "50456713J"
+            organizationName:
+              $ref: "#/components/schemas/OrganizationName"
+            countryOfOperation:
+              $ref: "#/components/schemas/Country"
+            accountingSectorCode:
+              type: string
+              description: "Accounting sector code"
+              example: "001"
+            placeOfRegistration:
+              $ref: "#/components/schemas/PlaceOfRegistration"
+            economicActivity:
+              $ref: "#/components/schemas/EconomicActivity"
+        contactPoint:
+          type: object
+          description: "Data structure containing information about a contact point. A contact point is a phone number, physical address, or virtual address used for communication purposes."
+          required:
+            - postalAddress
+          properties:
+            postalAddress:
+              type: object
+              description: "Data structure containing information that locates and identifies a postal address"
+              required:
+                - country
+              properties:
+                streetName:
+                  type: string
+                  description: "Name of a street or thoroughfare"
+                  example: "Market St."
+                streetTypeCode:
+                  type: string
+                  description: "Street type code"
+                  example: "AV"
+                streetBuildingIdentification:
+                  type: string
+                  description: "Number that identifies the position of a building on a street"
+                  example: "5"
+                state:
+                  $ref: "#/components/schemas/State"
+                country:
+                  $ref: "#/components/schemas/Country"
+                zipCode:
+                  type: string
+                  description: "Address ZIP code"
+                  example: "02171"
+            phoneAddress:
+              $ref: "#/components/schemas/PhoneAddress"
+            electronicAddress:
+              $ref: "#/components/schemas/ElectronicAddress"
+        type:
+          $ref: "#/components/schemas/PartyType"
+        statusInfo:
+          $ref: "#/components/schemas/StatusInfo"
+        bank:
+          $ref: "#/components/schemas/Bank"
+    WrapperCreatePartyRequest:
+      type: object
+      description: "Data structure containing information about a party. A party is a person or an organization that is involved in an activity."
+      x-bizObjRef: Party
+      required:
+        - partyId
+      properties:
+        partyId:
+          type: string
+          description: "Unique party ID"
+          example: "GLCS5"
+        organization:
+          type: object
+          description: "Data structure containing information about a legal entity"
+          required:
+            - organizationName
+            - accountingSectorCode
+            - countryOfOperation
+          properties:
+            organizationId:
+              type: string
+              description: "Unique legal entity ID"
+              example: "J123456789"
+            typeCode:
+              type: string
+              description: "Code for the organization type"
+              example: "CORPORATE"
+            documents:
+              type: array
+              description: "Array of documents"
+              items:
+                $ref: "#/components/schemas/IdentificationDocument"
+              example:
+                - documentTypeCode: "LEI"
+                  documentNumber: "6713233"
+                - documentTypeCode: "BDP"
+                  documentNumber: "50456713J"
+            organizationName:
+              $ref: "#/components/schemas/OrganizationName"
+            countryOfOperation:
+              $ref: "#/components/schemas/Country"
+            accountingSectorCode:
+              type: string
+              description: "Accounting sector code"
+              example: "001"
+            placeOfRegistration:
+              $ref: "#/components/schemas/PlaceOfRegistration"
+            economicActivity:
+              $ref: "#/components/schemas/EconomicActivity"
+        contactPoint:
+          type: object
+          description: "Data structure containing information about a contact point. A contact point is a phone number, physical address, or virtual address used for communication purposes."
+          required:
+            - postalAddress
+          properties:
+            postalAddress:
+              type: object
+              description: "Data structure containing information that locates and identifies a postal address"
+              required:
+                - country
+              properties:
+                streetName:
+                  type: string
+                  description: "Name of a street or thoroughfare"
+                  example: "Market St."
+                streetTypeCode:
+                  type: string
+                  description: "Street type code"
+                  example: "AV"
+                streetBuildingIdentification:
+                  type: string
+                  description: "Number that identifies the position of a building on a street"
+                  example: "5"
+                state:
+                  $ref: "#/components/schemas/State"
+                country:
+                  $ref: "#/components/schemas/Country"
+                zipCode:
+                  type: string
+                  description: "Address ZIP code"
+                  example: "02171"
+            phoneAddress:
+              $ref: "#/components/schemas/PhoneAddress"
+            electronicAddress:
+              $ref: "#/components/schemas/ElectronicAddress"
+        type:
+          $ref: "#/components/schemas/PartyType"
+        statusInfo:
+          $ref: "#/components/schemas/StatusInfo"
+        bank:
+          $ref: "#/components/schemas/Bank"
+    Party:
+      type: object
+      description: "Data structure containing information about a party. A party is a person or an organization that is involved in an activity."
+      required:
+        - partyId
+      properties:
+        partyId:
+          type: string
+          description: "Unique party ID"
+          example: "GLCS5"
+        type:
+          $ref: "#/components/schemas/PartyType"
+        statusInfo:
+          $ref: "#/components/schemas/StatusInfo"
+        contactPoint:
+          $ref: "#/components/schemas/ContactPoint"
+        bank:
+          $ref: "#/components/schemas/Bank"
+        organization:
+          $ref: "#/components/schemas/Organization"
+    PartyType:
+      type: object
+      description: "Data structure containing party type details. A party is an entity that is involved in an activity."
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "Party type code. Possibles values are:\n CUSTOMER: Entity represents a customers\n COUNTERPARTY:  Entity represents a counterparty\n FUNDS:  Entity represents a Fund"
+          enum:
+            - CUSTOMER
+            - COUNTERPARTY
+            - FUNDS
+          example: "CUSTOMER"
+    StatusInfo:
+      type: object
+      description: "Data structure containing information about an item's status"
+      required:
+        - statusCode
+      properties:
+        statusCode:
+          type: string
+          description: "Status code"
+          example: "CANC"
+    IdentificationDocument:
+      type: object
+      description: "Data structure containing information about an identification document for a person or an organization"
+      required:
+        - documentTypeCode
+      properties:
+        documentTypeCode:
+          type: string
+          description: "Document type code.\n\nThe possible values are:\n- LEI = Legal entity identifier\n- BDP = Person database"
+          enum:
+            - LEI
+            - BDP
+          example: "LEI"
+        documentNumber:
+          type: string
+          description: "Document number"
+          example: "50456713W"
+    Organization:
+      type: object
+      description: "Data structure containing information about a legal entity"
+      required:
+        - organizationName
+      properties:
+        organizationId:
+          type: string
+          description: "Unique legal entity ID"
+          example: "123456789"
+        typeCode:
+          type: string
+          description: "Code for the organization type"
+          example: "CORPORATE"
+        documents:
+          type: array
+          description: "Array of documents"
+          items:
+            $ref: "#/components/schemas/IdentificationDocument"
+          example:
+            - documentTypeCode: "LEI"
+              documentNumber: "6713233"
+            - documentTypeCode: "BDP"
+              documentNumber: "50456713J"
+        organizationName:
+          $ref: "#/components/schemas/OrganizationName"
+        identifiers:
+          type: array
+          description: "Array of the organization's identifiers"
+          items:
+            $ref: "#/components/schemas/Identifier"
+          example:
+            - code: "IB_NUMBER"
+              value: "123222"
+            - code: "MNEMONIC"
+              value: "GLCSLON"
+        countryOfOperation:
+          $ref: "#/components/schemas/Country"
+        accountingSectorCode:
+          type: string
+          description: "Accounting sector code"
+          example: "001"
+        placeOfRegistration:
+          $ref: "#/components/schemas/PlaceOfRegistration"
+        economicActivity:
+          $ref: "#/components/schemas/EconomicActivity"
+    EconomicActivity:
+      type: object
+      description: "Data structure containing information about a person's or legal entity's economic activity"
+      required:
+        - categoryCode
+      properties:
+        categoryCode:
+          type: string
+          description: "Category code for the economic activity"
+          example: "K"
+        subCategoryCode:
+          type: string
+          description: "Subcategory code for the economic activity"
+          example: "6491"
+    Identifier:
+      type: object
+      description: "Data structure containing information about an identifier"
+      required:
+        - code
+        - value
+      properties:
+        code:
+          type: string
+          description: "Identifier code stored in the international branch's local database.\n\nThe possible values are:\n- IB_NUMBER = International branch ID\n- MNEMONIC = Organization mnemonic"
+          enum:
+            - IB_NUMBER
+            - MNEMONIC
+          example: "IB_NUMBER"
+        value:
+          type: string
+          description: "Identifier value"
+          example: "123222"
+    PlaceOfRegistration:
+      type: object
+      description: "Data structure containing information about the place of registration"
+      required:
+        - country
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+    ContactPoint:
+      type: object
+      description: "Data structure containing information about a contact point. A contact point is a phone number, physical address, or virtual address used for communication purposes."
+      required:
+        - postalAddress
+      properties:
+        postalAddress:
+          $ref: "#/components/schemas/PostalAddress"
+        phoneAddress:
+          $ref: "#/components/schemas/PhoneAddress"
+        electronicAddress:
+          $ref: "#/components/schemas/ElectronicAddress"
+    ElectronicAddress:
+      type: object
+      description: "Data structure containing information that identifies an electronic address"
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          description: "Email address of the party"
+          maxLength: 256
+          example: example@domain.com
+    PhoneAddress:
+      type: object
+      description: "Data structure containing information that identifies a phone address"
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          description: "Phone number, as defined by a telecom service"
+          minLength: 2
+          maxLength: 35
+          example: "123456789"
+        faxNumber:
+          type: string
+          description: "Fax number, as defined by a telecom service"
+          minLength: 2
+          maxLength: 35
+          example: "123456789"
+    PostalAddress:
+      type: object
+      description: "Data structure containing information that locates and identifies a postal address"
+      required:
+        - country
+      properties:
+        streetName:
+          type: string
+          description: "Name of a street or thoroughfare"
+          example: "Market St."
+        streetTypeCode:
+          type: string
+          description: "Street type code"
+          example: "AV"
+        streetBuildingIdentification:
+          type: string
+          description: "Number that identifies the position of a building on a street"
+          example: "5"
+        state:
+          $ref: "#/components/schemas/State"
+        country:
+          $ref: "#/components/schemas/Country"
+        zipCode:
+          type: string
+          description: "Address ZIP code"
+          example: "02171"
+        fullAddress:
+          type: "string"
+          description: "Complete address formed by concatenation of the relevant address fields required by each country associated with the bank. The number and order of address fields varies by country."
+          example: "7 Regent St. London W1B 4DY United Kingdom"
+    State:
+      type: object
+      description: "Data structure containing state information"
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: "State name"
+          minLength: 0
+          maxLength: 255
+          example: "Massachusetts"
+    Bank:
+      type: object
+      description: "Data structure containing bank details"
+      required:
+        - bic
+        - center
+      properties:
+        bic:
+          type: string
+          description: "Bank identifier code (BIC)"
+          example: "BSCHUS33"
+        center:
+          $ref: "#/components/schemas/Center"
+    Center:
+      type: object
+      description: "Data structure containing information about a bank centre"
+      required:
+        - shortName
+      properties:
+        type:
+          type: string
+          description: "Bank centre type"
+          example: "BRANCH"
+        shortName:
+          type: string
+          description: "Short name of the bank centre; for example, 'LON' for London, 'FRK' for Frankfurt, and 'MLN' for Milan"
+          example: "LON"
+    OrganizationName:
+      type: object
+      description: "Data structure containing organization name details. An organization's name is the name by which the organization is known. It is normally used to identify the organization."
+      required:
+        - legalName
+      properties:
+        legalName:
+          type: string
+          description: "Official name under which the organization is registered, used for contracts and other formal purposes"
+          example: "Diameter Capital CLO 5 Ltd."
+        shortName:
+          type: string
+          description: "Short name of the organization"
+          example: "CBS"
+    Country:
+      type: object
+      description: "Data structure containing country information"
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "Country code"
+          example: "US"
+        name:
+          type: string
+          description: "Country name"
+          minLength: 0
+          maxLength: 255
+          example: "United States of America"
+    WrapperRetrievePartyResponse:
+      type: object
+      description: "Data structure containing the response to a request to retrieve a corporate trade party's details"
+      required:
+        - party
+      properties:
+        party:
+          $ref: "#/components/schemas/Party"
+    WrapperCreatePartyResponse:
+      type: object
+      description: "Data structure containing the response to a request to create a corporate trade party"
+      required:
+        - party
+      properties:
+        party:
+          $ref: "#/components/schemas/Party"
+    WrapperUpdatePartyResponse:
+      type: object
+      description: "Data structure containing the response to a request to update a corporate trade party's details"
+      required:
+        - party
+      properties:
+        party:
+          $ref: "#/components/schemas/Party"     
+  responses:
+    WrapperRetrievePartyResponse:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperRetrievePartyResponse"
+    WrapperCreatePartyResponse:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperCreatePartyResponse"
+    WrapperUpdatePartyResponse:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperUpdatePartyResponse"
+    NoContent:
+      description: No Content
+    BadRequest:
+      description: "Bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "badRequest"
+                message: "Bad request"
+                level: "ERROR"
+                description: "Bad request"
+    Forbidden:
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "forbidden"
+                message: "Forbidden"
+                level: "ERROR"
+                description: "Forbidden"
+    GatewayTimeout:
+      description: "Gateway timeout"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "gatewayTimeout"
+                message: "Gateway timeout"
+                level: "ERROR"
+                description: "Gateway timeout"
+    InternalServerError:
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "internalServerError"
+                message: "Internal server error"
+                level: "ERROR"
+                description: "Internal server error"
+    NotFound:
+      description: "Not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "notFound"
+                message: "Not found"
+                level: "ERROR"
+                description: "Not found"
+    UnsupportedMediaType:
+      description: "Unsupported media type"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "unsupportedMediaType"
+                message: "Unsupported media type"
+                level: "ERROR"
+                description: "Unsupported media type"
+    ServiceUnavailable:
+      description: "Service unavailable"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "serviceUnavailable"
+                message: "Service unavailable"
+                level: "ERROR"
+                description: "Service unavailable"
+    Unauthorized:
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "unauthorized"
+                message: "Unauthorized"
+                level: "ERROR"
+                description: "Unauthorized"
+  requestBodies:
+    WrapperCreatePartyRequest:
+      description: "Data structure containing the request details for creating a corporate trade party"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperCreatePartyRequest"
+      required: true
+    WrapperUpdatePartyRequest:
+      description: "Data structure containing the request details for updating a corporate trade party's details"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WrapperUpdatePartyRequest"
+      required: true
+  parameters:
+    Party-Id:
+      name: party_id
+      required: true
+      in: path
+      schema:
+        type: string
+      description: "GLCS party ID to be used in the query"
+      example: "GLCS5"
+    X-Santander-Client-Id:
+      name: x-santander-client-id
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "Client ID header"
+      example: "a1b30a84-7bf3-442e-84a0-e935d8163b5a"
+    Accept-Language:
+      name: accept-language
+      in: header
+      required: false
+      schema:
+        type: string
+      description: "Language and country header.\n\nThe value is a 2-letter language code defined in ISO 639-1 alpha-2 followed by a 2-letter country code defined in ISO 3166-1 alpha-2, separated by a hyphen."
+      example: "es-ES"
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - Authorization: []

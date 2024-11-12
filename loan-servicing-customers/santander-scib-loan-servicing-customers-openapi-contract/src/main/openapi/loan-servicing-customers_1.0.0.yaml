@@ -1,0 +1,654 @@
+openapi: 3.0.3
+info:
+  title: "Corporate Loan Servicing Customers"
+  version: 1.0.0
+  description: "This API manages customer records in the LoanIQ loan servicing application.\n\nThe API can be used to:\n- Create a customer record.\n- Create standard settlement instructions for a customer."
+  contact:
+    email: "scibapigovernance@gruposantander.com"
+    url: "https://gluon.corp/community/docs/latest/"
+  license:
+    name: "Apache"
+    url: "https://www.apache.org/licenses/LICENSE-2.0"
+servers:
+  - url: "/v1/corporate_loan_servicing_customers"
+security:
+  - Authorization: []
+tags:
+  - name: Customers
+    description: "Operations related to customers"
+  - name: Standard settlement instructions
+    description: "Operations related to standard settlement instructions"
+paths:
+  "/customers":
+    parameters:
+      - $ref: "#/components/parameters/X-Santander-Client-Id"
+      - $ref: "#/components/parameters/Accept-Language"
+    post:
+      summary: "Creates a customer record."
+      description: "Creates a customer record.\n\nThe following must be provided in the request body:\n- Customer ID\n- Profile type\n- List of identifiers\n- Organization information:\n>- Type code\n>- Official name\n>- Country of registration\n>- Standard Industrial Classification (SIC) code\n>- Parent organization's legal entity ID\n>- List of touchpoints and their details\n>- Indication of whether the legal entity is active"
+      operationId: createCustomer
+      tags:
+        - Customers
+      requestBody:
+        $ref: "#/components/requestBodies/CreateCustomer"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "406":
+          $ref: "#/components/responses/NotAcceptable"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/customers/{customer_id}/standard_settlement_instructions":
+    parameters:
+      - $ref: "#/components/parameters/Customer-Id"
+      - $ref: "#/components/parameters/X-Santander-Client-Id"
+      - $ref: "#/components/parameters/Accept-Language"
+    post:
+      summary: "Creates standard settlement instructions for a customer."
+      description: "Creates standard settlement instructions for a specific customer.\n\nTo send this request, you must provide a customer ID in the request path.\n\nThe following must be provided in the request body:\n- Currency code\n- List of parties and their details, related to the instruction settlement\n- Special settlement instructions"
+      operationId: createStandardSettlementInstructions
+      tags:
+        - Standard settlement instructions
+      requestBody:
+        $ref: "#/components/requestBodies/CreateStandardSettlementInstructions"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "406":
+          $ref: "#/components/responses/NotAcceptable"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+components:
+  schemas:
+    Currency:
+      type: object
+      description: "Data structure containing currency details"
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "Currency code.\n\nThe value is in the alpha-3 format defined in ISO 4217 (https://www.iso.org/iso-4217-currency-codes.html)."
+          maxLength: 3
+          example: "USD"
+    AccountIdentification:
+      type: object
+      description: "Data structure containing information related to account identification"
+      required:
+        - accountNumber
+      properties:
+        internationalIdentification:
+          type: string
+          description: "International Bank Account Number (IBAN)"
+          example: "ES3020041010050500013M02606"
+        routingNumber:
+          type: string
+          description: "Routing number"
+          minLength: 9
+          maxLength: 24
+          example: "091-000-022"
+        accountNumber:
+          type: string
+          description: "Account number"
+          example: "/FW091000022"
+    Account:
+      type: object
+      description: "Data structure containing account information"
+      required:
+        - accountIdentification
+      properties:
+        accountIdentification:
+          $ref: "#/components/schemas/AccountIdentification"
+    Bank:
+      type: object
+      description: "Data structure containing bank details"
+      required:
+        - bankName
+        - bic
+      properties:
+        bankName:
+          type: string
+          description: "Bank name"
+          example: "U.S. Bank N.A"
+        bic:
+          type: string
+          description: "Bank identifier code (BIC)"
+          example: "USBKUS44"
+    PartyType:
+      type: object
+      description: "Data structure containing party type details. A party is an entity that is involved in an activity."
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "Party type code"
+          example: "BENCR"
+    Party:
+      type: object
+      description: "Data structure containing information about a party. A party is a person or an organization that is involved in an activity."
+      required:
+        - type
+        - bank
+      properties:
+        type:
+          $ref: "#/components/schemas/PartyType"
+        bank:
+          $ref: "#/components/schemas/Bank"
+        organization:
+          type: object
+          description: "Data structure containing information about a legal entity"
+          required:
+            - organizationName
+          properties:
+            organizationName:
+              $ref: "#/components/schemas/OrganizationName"
+    StandardSettlementInstructions:
+      type: object
+      description: "Data structure containing information about standard settlement instructions. The instructions are used for cash or securities."
+      required:
+        - currency
+        - settlementParties
+        - specialInstructions
+      properties:
+        currency:
+          $ref: "#/components/schemas/Currency"
+        settlementParties:
+          type: array
+          description: "Array of parties related to the instruction settlement"
+          items:
+            type: object
+            description: "Data structure containing information about a counterparty"
+            required:
+              - party
+            properties:
+              party:
+                $ref: "#/components/schemas/Party"
+              account:
+                $ref: "#/components/schemas/Account"
+        specialInstructions:
+          type: object
+          description: "Data structure containing information about special instructions for third parties"
+          required:
+            - detail
+          properties:
+            detail:
+              type: string
+              description: "Details of the special instructions"
+              example: "For credit account: 225308"
+    Customer:
+      type: object
+      description: "Data structure containing information about a customer"
+      required:
+        - customerId
+        - profile
+        - identifiers
+        - organization
+      properties:
+        customerId:
+          type: string
+          description: "Customer ID. This ID is the risk identifier of the entity, and it is called global limit code system (GLCS) at Santander."
+          example: "USLIBD"
+        profile:
+          type: string
+          description: "Profile type for the customer; for example, an investor (lender), a borrower, or a guarantor"
+          example: "INVR"
+        identifiers:
+          type: array
+          description: "Array of identifiers"
+          items:
+            $ref: "#/components/schemas/Identifier"
+        organization:
+          $ref: "#/components/schemas/Organization"
+    Identifier:
+      type: object
+      description: "Data structure containing information about an identifier"
+      required:
+        - code
+        - value
+      properties:
+        code:
+          type: string
+          description: "Identifier code"
+          example: "MEI"
+        value:
+          type: string
+          description: "Identifier value"
+          example: "KY0M008BL7"
+    Organization:
+      type: object
+      description: "Data structure containing information about a legal entity"
+      required:
+        - typeCode
+        - organizationName
+        - placeOfRegistration
+        - standardIndustrialClassificationCode
+        - hierarchy
+        - touchpoints
+        - isActive
+      properties:
+        typeCode:
+          type: string
+          description: "Code for the organization type, defining the entity's typology. The value can be, for example, a combination of the following parts:\n- CDO = Collateralized debt obligation\n- CLO = Collateralized loan obligation\n- SPV = Special purpose vehicle"
+          example: "CLO/CDO/SPV"
+        organizationName:
+          $ref: "#/components/schemas/OrganizationName"
+        placeOfRegistration:
+          $ref: "#/components/schemas/PlaceOfRegistration"
+        standardIndustrialClassificationCode:
+          type: integer
+          description: "Standard Industrial Classification (SIC) code associated with the organization's business type"
+          example: 5563
+        hierarchy:
+          type: object
+          description: "Data structure containing information about the organization's place in a hierarchy"
+          required:
+            - parent
+          properties:
+            parent:
+              type: object
+              description: "Data structure containing information about the organization's direct parent. This parent organization has an immediate controlling interest in the organization."
+              required:
+                - organizationId
+              properties:
+                organizationId:
+                  type: string
+                  description: "Unique legal entity ID"
+                  example: "USLD"
+        touchpoints:
+          type: array
+          description: "Array of the organization's touchpoints"
+          items:
+            type: object
+            description: "Data structure containing information about a touchpoint. A touchpoint is a contact person or department within an internal or external organization."
+            required:
+              - name
+              - department
+              - preferredLanguage
+              - electronicAddress
+              - phoneAddress
+              - postalAddress
+            properties:
+              name:
+                type: string
+                description: "Touchpoint name"
+                example: "Matt Gilmartin"
+              department:
+                type: string
+                description: "Touchpoint's department; for example, Servicing, Credit, Legal, or Operations"
+                example: "Credit"
+              preferredLanguage:
+                $ref: "#/components/schemas/Language"
+              electronicAddress:
+                $ref: "#/components/schemas/ElectronicAddress"
+              phoneAddress:
+                $ref: "#/components/schemas/PhoneAddress"
+              postalAddress:
+                $ref: "#/components/schemas/PostalAddress"
+        isActive:
+          type: boolean
+          description: "Whether the legal entity is active. If so, it is ready to use."
+          example: true
+    OrganizationName:
+      type: object
+      description: "Data structure containing organization name details. An organization's name is the name by which the organization is known. It is normally used to identify the organization."
+      required:
+        - legalName
+      properties:
+        legalName:
+          type: string
+          description: "Official name under which the organization is registered, used for contracts and other formal purposes"
+          example: "Diameter Capital CLO 5 Ltd."
+    PlaceOfRegistration:
+      type: object
+      description: "Data structure containing information about the place of registration"
+      required:
+        - country
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+    City:
+      type: object
+      description: "Data structure containing city information"
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: "City name"
+          maxLength: 255
+          example: "New York"
+    State:
+      type: object
+      description: "Data structure containing state information"
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "State code.\n\nThe value is based on the ISO 3166-2 (https://www.iso.org/obp/ui/#search/code/)."
+          example: "US-PA"
+    Country:
+      type: object
+      description: "Data structure containing country information"
+      minProperties: 1
+      properties:
+        code:
+          type: string
+          description: "Country code"
+          example: "US"
+        name:
+          type: string
+          description: "Country name"
+          maxLength: 255
+          example: "United States"
+    ElectronicAddress:
+      type: object
+      description: "Data structure containing information that identifies an electronic address"
+      required:
+        - displayName
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          description: "Email address"
+          minLength: 2
+          maxLength: 256
+          example: "admin@admin.com"
+        displayName:
+          type: string
+          description: "Display name for the person or organization"
+          example: "Admin"
+    PhoneAddress:
+      type: object
+      description: "Data structure containing information that identifies a phone address"
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          description: "Phone number, as defined by a telecom service"
+          minLength: 2
+          maxLength: 35
+          example: "2126551403"
+        faxNumber:
+          type: string
+          description: "Fax number, as defined by a telecom service"
+          minLength: 2
+          maxLength: 35
+          example: "+18177177179"
+    PostalAddress:
+      type: object
+      description: "Data structure containing information that locates and identifies a postal address"
+      required:
+        - fullAddress
+        - zipCode
+        - state
+        - city
+        - country
+      properties:
+        fullAddress:
+          type: string
+          description: "Complete address formed by concatenation of the relevant address fields required by each country associated with the bank. The number and order of address fields varies by country."
+          example: "7 Regent St. London"
+        zipCode:
+          type: string
+          description: "Address ZIP code"
+          example: "29010"
+        state:
+          $ref: "#/components/schemas/State"
+        city:
+          $ref: "#/components/schemas/City"
+        country:
+          $ref: "#/components/schemas/Country"
+    Language:
+      type: object
+      description: "Data structure containing language information"
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: "Language code.\n\nThe value uses the format 'dialect-country', where 'dialect' is an ISO 639-1 language code and 'country' is an ISO 3166-1 country code."
+          pattern: "(^([a-zA-Z]|[ ]){2}-([a-zA-Z]|[ ]){2}$)"
+          example: "en-US"
+    Error:
+      type: object
+      description: "Data structure containing the error details"
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: "Unique alphanumeric human readable error code"
+          example: "001"
+        message:
+          type: string
+          description: "Brief summary of the reported issue"
+          example: "Integrity check"
+        level:
+          type: string
+          description: "Level of the reported issue"
+          enum:
+            - ERROR
+            - FATAL
+            - INFO
+            - WARNING
+          example: "WARNING"
+        description:
+          type: string
+          description: "Detailed description of the reported issue"
+          example: "Information about the returned error, used to resolve it"
+    Errors:
+      type: object
+      description: "Data structure containing the details for errors"
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          description: "Array of errors"
+          items:
+            $ref: "#/components/schemas/Error"
+  requestBodies:
+    CreateCustomer:
+      description: "Data structure containing the request details for creating a customer record"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Customer"
+      required: true
+    CreateStandardSettlementInstructions:
+      description: "Data structure containing the request details for creating standard settlement instructions for a customer"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StandardSettlementInstructions"
+      required: true
+  responses:
+    BadRequest:
+      description: "Bad request"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "badRequest"
+                message: "Bad request"
+                level: "ERROR"
+                description: "Bad request"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    Forbidden:
+      description: "Forbidden"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "forbidden"
+                message: "Forbidden"
+                level: "ERROR"
+                description: "Forbidden"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    GatewayTimeout:
+      description: "Gateway timeout"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "gatewayTimeout"
+                message: "Gateway timeout"
+                level: "ERROR"
+                description: "Gateway timeout"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    InternalServerError:
+      description: "Internal server error"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "internalServerError"
+                message: "Internal server error"
+                level: "ERROR"
+                description: "Internal server error"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    NotAcceptable:
+      description: "Not acceptable"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "notAcceptable"
+                message: "Not acceptable"
+                level: "ERROR"
+                description: "Not acceptable"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    NoContent:
+      description: "No content"
+    NotFound:
+      description: "Not found"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "notFound"
+                message: "Not found"
+                level: "ERROR"
+                description: "Not found"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    ServiceUnavailable:
+      description: "Service unavailable"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "serviceUnavailable"
+                message: "Service unavailable"
+                level: "ERROR"
+                description: "Service unavailable"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    TooManyRequests:
+      description: "Too many requests"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "tooManyRequests"
+                message: "Too many requests"
+                level: "ERROR"
+                description: "Too many requests"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    Unauthorized:
+      description: "Unauthorized"
+      content:
+        application/json:
+          example:
+            errors:
+              - code: "unauthorized"
+                message: "Unauthorized"
+                level: "ERROR"
+                description: "Unauthorized"
+          schema:
+            $ref: "#/components/schemas/Errors"
+    UnsupportedMediaType:
+      description: "Unsupported media type"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+          example:
+            errors:
+              - code: "unsupportedMediaType"
+                message: "Unsupported media type"
+                level: "ERROR"
+                description: "Unsupported media type"
+  parameters:
+    Customer-Id:
+      name: customer_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: "Customer ID to be used in the query. This ID is the risk identifier of the entity, and it is called global limit code system (GLCS) at Santander."
+      example: "USLIBD"
+    Accept-Language:
+      name: accept-language
+      in: header
+      required: false
+      schema:
+        type: string
+      description: "Language and country header.\n\nThe value is a 2-letter language code defined in ISO 639-1 alpha-2 followed by a 2-letter country code defined in ISO 3166-1 alpha-2, separated by a hyphen."
+      example: "es-ES"
+    X-Santander-Client-Id:
+      name: x-santander-client-id
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "Client ID header"
+      example: "a1b30a84-7bf3-442e-84a0-e935d8163b5a"
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,560 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: sara.camunas@gruposantander.com
+    name: cib.cto
+    url: https://confluence.alm.europe.cloudcenter.corp/display/CIBOBSERV/Observability
+  description: Provide a service to send an event to the events framework (GETAFE),
+    compliant with the format expected in the observability platform. It is indicated
+    for those who cannot send events directly to it, but can post information to a
+    http endpoint.
+  license:
+    name: Santander CIB API License
+    url: https://internal-apimarket.scib.gs.corp/scib/internal/license
+  termsOfService: https://internal-apimarket.scib.gs.corp/scib/internal/terms
+  title: Getafe Events
+  version: 1.0.0
+  x-santander-catalogation:
+    bian-business-area: Business Support
+    bian-business-domain: IT Management
+    bian-landscape-version: 11
+    bian-service-domain: Systems Assurance
+  x-scib-catalogation:
+    business-area: Technical Architecture
+    business-domain: CTO CIB
+    entity: SCIB Global
+    orbis-application-id: 39256
+    orbis-application-name: getafe
+servers:
+- url: /v1/getafe_events
+paths:
+  /events:
+    parameters:
+    - $ref: '#/components/parameters/X-Topic'
+    - $ref: '#/components/parameters/X-Key'
+    - $ref: '#/components/parameters/X-Santander-Client-Id'
+    - $ref: '#/components/parameters/X-Santander-Device'
+    - $ref: '#/components/parameters/X-B3-TraceId'
+    - $ref: '#/components/parameters/X-B3-ParentSpanId'
+    - $ref: '#/components/parameters/X-B3-SpanId'
+    - $ref: '#/components/parameters/X-B3-Sampled'
+    - $ref: '#/components/parameters/Accept-Language'
+    - $ref: '#/components/parameters/If-None-Match'
+    - $ref: '#/components/parameters/If-Match'
+    post:
+      description: Create the input event to send to a events framework topic.
+      operationId: createEvents
+      requestBody:
+        $ref: '#/components/requestBodies/CreateEvents'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+      summary: Create an event to be sent to the events framework.
+      tags:
+      - Events
+  /health:
+    get:
+      description: Get interface health information.
+      operationId: retrieveHealth
+      responses:
+        '200':
+          $ref: '#/components/responses/RetrieveHealth'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+      summary: Retrieve the liveliness and the readiness of the service.
+      tags:
+      - Health
+    parameters:
+    - $ref: '#/components/parameters/Authorization'
+    - $ref: '#/components/parameters/X-B3-TraceId'
+    - $ref: '#/components/parameters/X-B3-ParentSpanId'
+    - $ref: '#/components/parameters/X-B3-SpanId'
+    - $ref: '#/components/parameters/X-B3-Sampled'
+    - $ref: '#/components/parameters/X-Santander-Client-Id'
+    - $ref: '#/components/parameters/X-Santander-Device'
+    - $ref: '#/components/parameters/Accept-Language'
+    - $ref: '#/components/parameters/If-None-Match'
+    - $ref: '#/components/parameters/If-Match'
+components:
+  parameters:
+    Accept-Language:
+      description: The consumer defines the list of languages in order of preference.
+        The server responds with the "Content-Language" field in the header with the
+        response language.
+      in: header
+      name: Accept-Language
+      required: false
+      schema:
+        type: string
+    Authorization:
+      description: The authorization header contains the token to authenticate the
+        user to the GitHub server.
+      in: header
+      name: Authorization
+      required: true
+      schema:
+        type: string
+    If-Match:
+      description: Used for resource modification requests, this field allows you
+        to make changes only if another client has not made any other changes during
+        execution, that is, if the Etag sent is the same.
+      in: header
+      name: If-Match
+      required: false
+      schema:
+        type: string
+    If-None-Match:
+      description: Gets the GET resources in cache as long as the data of the Etag
+        sent in this header has not changed.
+      in: header
+      name: If-None-Match
+      required: false
+      schema:
+        type: string
+    X-B3-ParentSpanId:
+      description: The X-B3-ParentSpanId header may be present on a child span and
+        must be absent on the root span. It is encoded as 16 lower-hex characters.
+      in: header
+      name: X-B3-ParentSpanId
+      required: false
+      schema:
+        type: string
+    X-B3-Sampled:
+      description: 'An accept sampling decision is encoded as X-B3-Sampled: 1 and
+        a deny as X-B3-Sampled: 0. Absent means defer the decision to the receiver
+        of this header.'
+      in: header
+      name: X-B3-Sampled
+      required: false
+      schema:
+        type: string
+    X-B3-SpanId:
+      description: The X-B3-SpanId header is encoded as 16 lower-hex characters.
+      in: header
+      name: X-B3-SpanId
+      required: false
+      schema:
+        type: string
+    X-B3-TraceId:
+      description: The X-B3-TraceId header is encoded as 32 or 16 lower-hex characters.
+      in: header
+      name: X-B3-TraceId
+      required: false
+      schema:
+        type: string
+    X-Key:
+      description: Key for the kafka the event.
+      in: header
+      name: X-Key
+      required: false
+      schema:
+        type: string
+    X-Santander-Client-Id:
+      description: This is the value of the client identifier issued to the client
+        during the application registration process.
+      in: header
+      name: X-Santander-Client-Id
+      required: true
+      schema:
+        type: string
+    X-Santander-Device:
+      description: Device information allowed by the operation for data query. Allows
+        to apply base experience to optimize the response according to the device
+        that requests it.
+      in: header
+      name: X-Santander-Device
+      required: false
+      schema:
+        type: string
+    X-Topic:
+      description: Kafka topic to send the event.
+      in: header
+      name: X-Topic
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    CreateEvents:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Event'
+      description: Create event.
+      required: true
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: badRequest
+              description: Bad Request.
+              level: ERROR
+              message: Bad Request
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Bad Request.
+    Forbidden:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: forbidden
+              description: Forbidden.
+              level: ERROR
+              message: Forbidden
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Forbidden.
+    GatewayTimeout:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: gatewayTimeout
+              description: Gateway timeout.
+              level: ERROR
+              message: Gateway timeout
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Gateway timeout.
+    InternalServerError:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: internalServerError
+              description: Internal Server Error.
+              level: ERROR
+              message: Internal Server Error
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Internal Server Error.
+    NoContent:
+      description: No content.
+    NotFound:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: notFound
+              description: Not Found.
+              level: ERROR
+              message: Not Found
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: The specified resource was not found.
+    RetrieveHealth:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Health'
+      description: Retrieve the interface's health.
+    ServiceUnavailable:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: serviceUnavailable
+              description: Service Unavailable.
+              level: ERROR
+              message: Service Unavailable
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Service Unavailable.
+    Unauthorized:
+      content:
+        application/json:
+          example:
+            errors:
+            - code: unauthorized
+              description: Unauthorized.
+              level: ERROR
+              message: Unauthorized
+          schema:
+            $ref: '#/components/schemas/Errors'
+      description: Unauthorized.
+  schemas:
+    Error:
+      description: Data structure containing the error details.
+      properties:
+        code:
+          description: Unique alphanumeric human readable error code.
+          example: badRequest
+          type: string
+        description:
+          description: Detailed description of the reported issue.
+          example: Data structure containing description.
+          type: string
+        level:
+          description: Level of the reported issue.
+          enum:
+          - ERROR
+          - FATAL
+          - INFO
+          - WARNING
+          example: ERROR
+          type: string
+        message:
+          description: Brief summary of the reported issue.
+          example: Message
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    Errors:
+      description: Data structure containing the details for errors.
+      properties:
+        errors:
+          description: List of errors.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - errors
+      type: object
+    Event:
+      description: Data structure containing an event to be sent to the events framework.
+      properties:
+        appKey:
+          description: Identifier for the project generating logs.
+          example: FIMS
+          type: string
+        customLog:
+          description: String in base64 containing custom fields of the event.
+          example: ewogICAgInJlc3BvbnNlVGltZSI6ICIxMDAiLAogICAgImNsaWVuSWQiOiAibmhiIgp9
+          format: byte
+          type: string
+        entity:
+          description: Santander entity whose component is generating the logs.
+          example: SCIB GLOBAL
+          type: string
+        environment:
+          description: Environment where the component is running.
+          enum:
+          - CERT
+          - TEST
+          - PRE
+          - PRO
+          example: PRO
+          type: string
+        generationDate:
+          description: 'Date and time of the record generation.\
+
+            The value uses the complete data format defined in ISO 8601:
+
+            ''YYYY-MM-DDThh:mm:ss.sss(+|-)hhmm''\
+
+            Where:
+
+            - YYYY: 4-digit year
+
+            - MM: 2-digit month (for example, 01 = January)
+
+            - DD: 2-digit day of the month (01 through 31)
+
+            - T: The letter ''T'' separates the date part from the time part
+
+            - hh: 2-digit hour of the day (00 through 23)
+
+            - mm: 2-digit minute of the hour (00 through 59)
+
+            - ss.sss: 5-digit seconds and milliseconds, separated by a point
+
+            - (+|-)hhmm: Represents the time zone, where ''+'' or ''-'' indicates
+            the time zone offset from UTC (Coordinated Universal Time). ''HH'' represents
+            hours, and ''mm'' represents minutes.
+
+            '
+          example: 2020-01-23T15:30:45.678+0500
+          format: date-time
+          type: string
+        isError:
+          description: Indicates if the log event is related to an error.
+          example: true
+          type: boolean
+        log:
+          description: Execution log message.
+          example: Update, Status = Closed, event-11-workers-pool-thread-1 / Op_id=25
+          type: string
+        logLevel:
+          description: Log trace level.
+          enum:
+          - TRACE
+          - DEBUG
+          - INFO
+          - WARN
+          - ERROR
+          example: INFO
+          type: string
+        logType:
+          description: Typology of the trace.
+          enum:
+          - ACTIVITY
+          - TECHNICAL
+          - FUNCTIONAL
+          - SECURITY
+          example: FUNCTIONAL
+          type: string
+        parentSpanId:
+          description: B3 ParentSpanId traceability header.
+          example: 8bfa123881ca78da
+          type: string
+        platform:
+          description: Technology writing the logs.
+          example: ApiConnect
+          type: string
+        region:
+          description: Region on which the application is deployed.
+          enum:
+          - OHE
+          - AWS
+          - AZURE
+          - ON_PREMISE
+          example: OHE
+          type: string
+        serviceName:
+          description: Name of the application that generates logs.
+          example: fims-manager
+          type: string
+        spanId:
+          description: B3 SpanId traceability header.
+          example: 99d10e7422e7e542
+          type: string
+        traceId:
+          description: B3 TraceId traceability header.
+          example: 8bfa123881ca78da
+          type: string
+        wParentId:
+          description: W3C (World Wide Web Consortium) parent_id traceability header.
+          example: 8bfa123881ca78da
+          type: string
+        wSpanId:
+          description: W3C (World Wide Web Consortium) span_id traceability header.
+          example: 99d10e7422e7e542
+          type: string
+        wTraceId:
+          description: W3C (World Wide Web Consortium) trace_id traceability header.
+          example: 8bfa123881ca78dab67293c67c0f8a70
+          type: string
+        wTraceState:
+          description: W3C (World Wide Web Consortium) TraceState request attribute.
+          example: b3=60d3007a4ec98975214897fe08974a7609b71431cde1445fe98757412ad4154436fa
+          type: string
+      required:
+      - generationDate
+      - entity
+      - appKey
+      - environment
+      - logLevel
+      - serviceName
+      - region
+      - logType
+      - isError
+      - customLog
+      type: object
+    Health:
+      description: Data structure containing information about the health response.
+      properties:
+        components:
+          description: Data structure containing components information.
+          items:
+            $ref: '#/components/schemas/HealthComponent'
+          required:
+          - kafka
+          type: object
+        status:
+          description: 'Status of the component.\
+
+            - UP: Status indicating that the component or subsystem is functioning
+            as expected.
+
+            - DOWN: Status indicating that the component or subsystem has suffered
+            an unexpected failure.
+
+            - OUT_OF_SERVICE: Status indicating that the component or subsystem has
+            been taken out of service and should not be used.
+
+            - UNKNOWN: Status indicating that the component or subsystem is in an
+            unknown state.
+
+            '
+          enum:
+          - UP
+          - DOWN
+          - UNKNOWN
+          - OUT_OF_SERVICE
+          example: UP
+          type: string
+      required:
+      - status
+      - components
+      type: object
+    HealthComponent:
+      description: Data structure containing component health information.
+      properties:
+        details:
+          description: Data structure containing detailed information about sub-components.
+          minProperties: 0
+          type: object
+        status:
+          description: 'Status of the component.\
+
+            - UP: Status indicating that the component or subsystem is functioning
+            as expected.
+
+            - DOWN: Status indicating that the component or subsystem has suffered
+            an unexpected failure.
+
+            - OUT_OF_SERVICE: Status indicating that the component or subsystem has
+            been taken out of service and should not be used.
+
+            - UNKNOWN: Status indicating that the component or subsystem is in an
+            unknown state.
+
+            '
+          enum:
+          - UP
+          - DOWN
+          - UNKNOWN
+          - OUT_OF_SERVICE
+          example: UP
+          type: string
+      required:
+      - status
+      type: object
+tags:
+- name: Events
+- name: Health
+externalDocs:
+  description: Find more information here.
+  url: https://confluence.alm.europe.cloudcenter.corp/display/CIBOBSERV/Observability
